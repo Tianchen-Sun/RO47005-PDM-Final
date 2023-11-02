@@ -19,8 +19,8 @@ public:
               pSettings(nullptr),
               pData(nullptr)
     {
-        pSettings = (OSQPSettings *)c_malloc(sizeof(OSQPSettings));
-        pData = (OSQPData *)c_malloc(sizeof(OSQPData));
+        pSettings = (OSQPSettings *)malloc(sizeof(OSQPSettings));
+        pData = (OSQPData *)malloc(sizeof(OSQPData));
         if (pSettings)
             osqp_set_default_settings(pSettings);
     }
@@ -37,7 +37,7 @@ public:
 
     const double UNBOUNDED_VAL;
 
-    inline c_int setMats(Eigen::SparseMatrix<double> &P,
+    inline int setMats(Eigen::SparseMatrix<double> &P,
                          Eigen::VectorXd &q,
                          Eigen::SparseMatrix<double> &A,
                          Eigen::VectorXd &l,
@@ -57,8 +57,8 @@ public:
 
         Eigen::Map<const Eigen::VectorXi> iIdxP(P.innerIndexPtr(), P.nonZeros());
         Eigen::Map<const Eigen::VectorXi> oIdxP(P.outerIndexPtr(), P.cols() + 1);
-        Eigen::Matrix<c_int, -1, 1> innerIdxP = iIdxP.cast<c_int>();
-        Eigen::Matrix<c_int, -1, 1> outerIdxP = oIdxP.cast<c_int>();
+        Eigen::Matrix<int, -1, 1> innerIdxP = iIdxP.cast<int>();
+        Eigen::Matrix<int, -1, 1> outerIdxP = oIdxP.cast<int>();
         pData->P = csc_matrix(pData->n,
                               pData->n,
                               P.nonZeros(),
@@ -68,8 +68,8 @@ public:
 
         Eigen::Map<const Eigen::VectorXi> iIdxA(A.innerIndexPtr(), A.nonZeros());
         Eigen::Map<const Eigen::VectorXi> oIdxA(A.outerIndexPtr(), A.cols() + 1);
-        Eigen::Matrix<c_int, -1, 1> innerIdxA = iIdxA.cast<c_int>();
-        Eigen::Matrix<c_int, -1, 1> outerIdxA = oIdxA.cast<c_int>();
+        Eigen::Matrix<int, -1, 1> innerIdxA = iIdxA.cast<int>();
+        Eigen::Matrix<int, -1, 1> outerIdxA = oIdxA.cast<int>();
         pData->A = csc_matrix(pData->m,
                               pData->n,
                               A.nonZeros(),
@@ -87,7 +87,7 @@ public:
         pSettings->eps_abs = eps_abs;
         pSettings->eps_rel = eps_rel;
 
-        c_int exitflag = osqp_setup(&pWork, pData, pSettings);
+        int exitflag = osqp_setup(&pWork, pData, pSettings);
 
         if (pData->A)
             c_free(pData->A);
@@ -97,12 +97,12 @@ public:
         return exitflag;
     }
 
-    inline c_int solve() const
+    inline int solve() const
     {
         return osqp_solve(pWork);
     }
 
-    inline c_int getStatus() const
+    inline int getStatus() const
     {
         return pWork->info->status_val;
     }
